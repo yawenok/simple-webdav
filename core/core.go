@@ -1,9 +1,9 @@
 package core
 
 import (
-	"./user"
-	"./webdav"
 	"net/http"
+	"simple-webdav/core/user"
+	"simple-webdav/core/webdav"
 )
 
 func NewUserManger(root string) (*user.Manager, error) {

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"../core"
-	"../core/user"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +8,8 @@ import (
 	"os/exec"
 	"path"
 	"runtime"
+	"simple-webdav/core"
+	"simple-webdav/core/user"
 	"strconv"
 	"time"
 )
@@ -131,50 +131,53 @@ func manageUser(root, operate string, args ...string) {
 }
 
 func manageServer(root, operate, addr string, daemon bool) {
-	file := path.Join(root, "./pid.lock")
+	pidFile := path.Join(root, "./pid.lock")
 
 	switch operate {
 	case "start":
+		fmt.Println("Starting!")
 		if daemon {
 			cmd := exec.Command(os.Args[0], "-a", addr, "-r", root, "-s", "start")
 			err := cmd.Start()
 			if err == nil {
-				fmt.Printf("PID[%d] is running...\n", cmd.Process.Pid)
+				fmt.Printf("PID %d is running...\n", cmd.Process.Pid)
 			} else {
 				fmt.Println("Start failed!", err.Error())
 			}
 			os.Exit(0)
 		} else {
-			pb, _ := ioutil.ReadFile(file)
 			pid := fmt.Sprintf("%d", os.Getpid())
-
-			fmt.Println("Starting!")
-			err := ioutil.WriteFile(file, []byte(pid), 0666)
+			err := ioutil.WriteFile(pidFile, []byte(pid), 0666)
 			if err != nil {
 				fmt.Println("Start failed!", err.Error())
 			}
 			err = core.StartWebDav(root, addr)
 			if err != nil {
 				fmt.Println("Start failed!", err.Error())
-				ioutil.WriteFile(file, pb, 0666)
+				os.Remove(pidFile)
 			}
 		}
 		break
 
 	case "stop":
-		pb, _ := ioutil.ReadFile(file)
-		pid := string(pb)
-
 		fmt.Println("Stopping!")
+		pb, err := ioutil.ReadFile(pidFile)
+		if err != nil {
+			fmt.Println("Read PID error!", err)
+			return
+		}
+
+		pid := string(pb)
 		cmd := new(exec.Cmd)
 		if runtime.GOOS == "windows" {
 			cmd = exec.Command("taskkill", "/f", "/pid", pid)
 		} else {
 			cmd = exec.Command("kill", pid)
 		}
-		err := cmd.Start()
+		err = cmd.Start()
 		if err == nil {
 			fmt.Printf("PID %s has been stopped!\n", pid)
+			os.Remove(pidFile)
 		} else {
 			fmt.Println("PID "+pid+" stop failed! %s\n", err)
 		}

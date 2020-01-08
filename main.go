@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./cmd"
+	"simple-webdav/cmd"
 )
 
 func main() {
