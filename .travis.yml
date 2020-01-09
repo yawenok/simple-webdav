@@ -1,9 +1,18 @@
-language: 
-  - go 
+language: go
 
-go:
-  - "1.13"  
-
-script:
-  - go test ./...
-  - go build
+matrix:
+  include:
+  - go: "1.10.x"
+    script:  
+    - go test -v ./...
+  - go: "1.11.x"
+    script: 
+    - go test -v -mod=vendor ./...
+  - go: "1.13"
+    script: 
+    - go test -v -mod=vendor ./...
+    
+env:
+  - GO111MODULE=on
+  
+install: true
