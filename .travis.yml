@@ -1,22 +1,14 @@
 language: go
 
-matrix:
-  include:
-  - go: "1.11.x"
-    script: 
-    - go test -v ./...
-    - go build -v
-  - go: "1.12.x"
-    script: 
-    - go test -v ./...
-    - go build -v
-  - go: "1.13"
-    script: 
-    - go test -v ./...
-    - go build -v
-    
+go: 
+  - 1.11.x
+  - 1.12.x
+  - 1.13
+
 env:
   - GO111MODULE=on
-  - GOFLAGS="-mod=vendor"
-  
-install: true
+  - GOFLAGS=-mod=vendor
+
+script: 
+  - go test -v ./...
+  - go build -v
