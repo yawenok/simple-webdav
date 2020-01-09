@@ -1,6 +1,6 @@
 module simple-webdav
 
-go 1.11.x
+go 1.12.x
 
 require (
 	github.com/go-xorm/xorm v0.7.9
